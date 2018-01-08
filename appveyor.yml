@@ -67,7 +67,7 @@ install:
 build_script:
   - git clone https://github.com/openturns/openturns.git
   - cd openturns
-  #- git checkout %APPVEYOR_REPO_TAG_NAME%
+  - git checkout %OT_VERSION%
   - mkdir build && cd build
   - cmake -G"%VS_GEN%" \
       -DCMAKE_INSTALL_PREFIX=%CD:\=/%/install \
@@ -85,14 +85,11 @@ build_script:
       -DBUILD_PYTHON=OFF \
       ..
   - cmake --build . --config Release --target install
-  #- set PYTHONPATH=%cd%\install\Lib\site-packages
-  #- copy install\bin\OT.dll install\Lib\site-packages\openturns
-  #- copy C:\Libraries\mingw32_dll\libgcc_s_sjlj-1.dll install\Lib\site-packages\openturns
-  #- copy C:\Libraries\mingw32_dll\libgfortran-3.dll install\Lib\site-packages\openturns
-  #- copy C:\Libraries\mingw32_dll\libquadmath-0.dll install\Lib\site-packages\openturns
-  #- copy C:\Libraries\OpenBLAS-v0.2.15-Win32\bin\libopenblas.dll install\Lib\site-packages\openturns
-  #- copy C:\Libraries\tbb\bin\tbb.dll install\Lib\site-packages\openturns
-  #- ctest -C Release --output-on-failure --timeout 100 -E "cppcheck|Sequence|Entropy|Sklar|Sample_computation|InverseBox"
+  - copy C:\Libraries\mingw32_dll\libgcc_s_sjlj-1.dll install\bin
+  - copy C:\Libraries\mingw32_dll\libgfortran-3.dll install\bin
+  - copy C:\Libraries\mingw32_dll\libquadmath-0.dll install\bin
+  - copy C:\Libraries\OpenBLAS-v0.2.15-Win32\bin\libopenblas.dll install\bin
+  - copy C:\Libraries\tbb\bin\tbb.dll install\bin
   - 7z a -tzip %APPVEYOR_BUILD_FOLDER%\openturns-%OT_VERSION%-%VC%-%CPU_ARCH%.zip install\*
 
 artifacts:
