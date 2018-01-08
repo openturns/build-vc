@@ -90,7 +90,7 @@ build_script:
   #- copy C:\Libraries\OpenBLAS-v0.2.15-Win32\bin\libopenblas.dll install\Lib\site-packages\openturns
   #- copy C:\Libraries\tbb\bin\tbb.dll install\Lib\site-packages\openturns
   #- ctest -C Release --output-on-failure --timeout 100 -E "cppcheck|Sequence|Entropy|Sklar|Sample_computation|InverseBox"
-  - 7z a -tzip openturns-%VC%-%CPU_ARCH%.zip install\*
+  - 7z a -tzip %APPVEYOR_BUILD_FOLDER%\openturns-%VC%-%CPU_ARCH%.zip install\*
 
 deploy:
   release: openturns-v$(appveyor_build_version)
