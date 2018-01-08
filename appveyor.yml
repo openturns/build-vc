@@ -92,13 +92,17 @@ build_script:
   #- ctest -C Release --output-on-failure --timeout 100 -E "cppcheck|Sequence|Entropy|Sklar|Sample_computation|InverseBox"
   - 7z a -tzip %APPVEYOR_BUILD_FOLDER%\openturns-%VC%-%CPU_ARCH%.zip install\*
 
+artifacts:
+  - path: openturns*.zip
+    name: binary
+
 deploy:
-  release: openturns-v$(appveyor_build_version)
-  description: 'Release description'
+  release: v$(appveyor_build_version)
+  description: 'MSVC binaries'
   provider: GitHub
   auth_token:
     secure: 4CkqK7ssPZsVuYY4gnYun8TlaVakivCHyw+EnT6z/KdoG3iTDcebHNdHQ+cYJFt+
-  artifact: '**\*.zip'
+  artifact: binary
   draft: false
   prerelease: false
   on:
