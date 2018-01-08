@@ -1,4 +1,5 @@
 environment:
+  OT_VERSION: 1.10
   matrix:
     - VS_GEN: Visual Studio 10 2010
       VC: vc10
@@ -12,6 +13,8 @@ environment:
     #- VS_GEN: Visual Studio 14 2015 Win64
       #VC: vc14
       #CPU_ARCH: x64
+
+version: '1.10-{build}'
 
 install:
   - appveyor-retry appveyor DownloadFile https://downloads.sourceforge.net/openblas/v0.2.15/OpenBLAS-v0.2.15-Win32.zip
@@ -64,7 +67,7 @@ install:
 build_script:
   - git clone https://github.com/openturns/openturns.git
   - cd openturns
-  - git checkout %APPVEYOR_REPO_TAG_NAME%
+  #- git checkout %APPVEYOR_REPO_TAG_NAME%
   - mkdir build && cd build
   - cmake -G"%VS_GEN%" \
       -DCMAKE_INSTALL_PREFIX=%CD:\=/%/install \
@@ -90,14 +93,14 @@ build_script:
   #- copy C:\Libraries\OpenBLAS-v0.2.15-Win32\bin\libopenblas.dll install\Lib\site-packages\openturns
   #- copy C:\Libraries\tbb\bin\tbb.dll install\Lib\site-packages\openturns
   #- ctest -C Release --output-on-failure --timeout 100 -E "cppcheck|Sequence|Entropy|Sklar|Sample_computation|InverseBox"
-  - 7z a -tzip %APPVEYOR_BUILD_FOLDER%\openturns-%VC%-%CPU_ARCH%.zip install\*
+  - 7z a -tzip %APPVEYOR_BUILD_FOLDER%\openturns-%OT_VERSION%-%VC%-%CPU_ARCH%.zip install\*
 
 artifacts:
   - path: openturns*.zip
     name: binary
 
 deploy:
-  release: v$(appveyor_build_version)
+  release: v%$(appveyor_build_version)
   description: 'MSVC binaries'
   provider: GitHub
   auth_token:
