@@ -1,7 +1,17 @@
 environment:
   matrix:
     - VS_GEN: Visual Studio 10 2010
+      VC: vc10
+      CPU_ARCH: x86
+    - VS_GEN: Visual Studio 10 2010 Win64
+      VC: vc10
+      CPU_ARCH: x64
     - VS_GEN: Visual Studio 14 2015
+      VC: vc14
+      CPU_ARCH: x86
+    - VS_GEN: Visual Studio 14 2015 Win64
+      VC: vc14
+      CPU_ARCH: x64
 
 install:
   - appveyor-retry appveyor DownloadFile https://downloads.sourceforge.net/openblas/v0.2.15/OpenBLAS-v0.2.15-Win32.zip
@@ -80,7 +90,7 @@ build_script:
   #- copy C:\Libraries\OpenBLAS-v0.2.15-Win32\bin\libopenblas.dll install\Lib\site-packages\openturns
   #- copy C:\Libraries\tbb\bin\tbb.dll install\Lib\site-packages\openturns
   #- ctest -C Release --output-on-failure --timeout 100 -E "cppcheck|Sequence|Entropy|Sklar|Sample_computation|InverseBox"
-  - 7z a -tzip openturns.zip install\*
+  - 7z a -tzip openturns-%VC%-%CPU_ARCH%.zip install\*
 
 deploy:
   release: openturns-v$(appveyor_build_version)
@@ -88,7 +98,7 @@ deploy:
   provider: GitHub
   auth_token:
     secure: 4CkqK7ssPZsVuYY4gnYun8TlaVakivCHyw+EnT6z/KdoG3iTDcebHNdHQ+cYJFt+
-  artifact: /.*\.zip
+  artifact: '**\*.zip'
   draft: false
   prerelease: false
   on:
