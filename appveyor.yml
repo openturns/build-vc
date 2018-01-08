@@ -3,9 +3,13 @@ environment:
   matrix:
     - VS_GEN: Visual Studio 10 2010
       VC: vc10
+      BITS: 32
+      INT_SUFFIX: ""
       CPU_ARCH: x86
     - VS_GEN: Visual Studio 10 2010 Win64
       VC: vc10
+      BITS: 64
+      INT_SUFFIX: "-int32"
       CPU_ARCH: x64
     #- VS_GEN: Visual Studio 14 2015
       #VC: vc14
@@ -17,14 +21,11 @@ environment:
 version: '1.10-{build}'
 
 install:
-  - appveyor-retry appveyor DownloadFile https://downloads.sourceforge.net/openblas/v0.2.15/OpenBLAS-v0.2.15-Win32.zip
-  - 7z x OpenBLAS-v0.2.15-Win32.zip -oC:\Libraries > nil
+  - appveyor-retry appveyor DownloadFile https://downloads.sourceforge.net/openblas/v0.2.15/OpenBLAS-v0.2.15-Win%BITS%%INT_SUFFIX%.zip
+  - 7z x OpenBLAS-v0.2.15-Win%BITS%%INT_SUFFIX%.zip -oC:\Libraries > nil
 
-  - appveyor-retry appveyor DownloadFile http://sourceforge.net/projects/openblas/files/v0.2.15/mingw32_dll.zip
-  - 7z x mingw32_dll.zip -oC:\Libraries > nil
-
-  - appveyor-retry appveyor DownloadFile https://sourceforge.net/projects/swig/files/swigwin/swigwin-3.0.12/swigwin-3.0.12.zip
-  - 7z x swigwin-3.0.12.zip -oC:\Libraries > nul
+  - appveyor-retry appveyor DownloadFile http://sourceforge.net/projects/openblas/files/v0.2.15/mingw%BITS%_dll.zip
+  - 7z x mingw%BITS%_dll.zip -oC:\Libraries > nil
 
   - git clone https://bitbucket.org/dbarbier/ot-superbuild.git
 
@@ -37,11 +38,9 @@ install:
   - cmake --build . --config Release --target install
   - cd %APPVEYOR_BUILD_FOLDER%
 
-  - appveyor-retry appveyor DownloadFile https://github.com/beltoforion/muparser/archive/v2.2.5.zip
-  - 7z x v2.2.5.zip -oC:\Libraries > nul
-  - copy ot-superbuild\muParser.cmake\CMakeLists.txt C:\Libraries\muparser-2.2.5
-  - pushd C:\Libraries\muparser-2.2.5
-  - cmake -G"%VS_GEN%" -DCMAKE_INSTALL_PREFIX=%CD:\=/% -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF .
+  - git clone https://github.com/beltoforion/muparser.git C:\Libraries\muparser
+  - pushd C:\Libraries\muparser
+  - cmake -G"%VS_GEN%" -DCMAKE_INSTALL_PREFIX=%CD:\=/% -DBUILD_SHARED_LIBS=OFF -DENABLE_SAMPLES=OFF .
   - cmake --build . --config Release --target install
   - cd %APPVEYOR_BUILD_FOLDER%
 
@@ -67,32 +66,28 @@ install:
 build_script:
   - git clone https://github.com/openturns/openturns.git
   - cd openturns
-  #- git checkout %APPVEYOR_REPO_TAG_NAME%
+  - git checkout %OT_VERSION%
   - mkdir build && cd build
   - cmake -G"%VS_GEN%" \
       -DCMAKE_INSTALL_PREFIX=%CD:\=/%/install \
       -DBOOST_ROOT="C:/Libraries/boost_1_63_0" \
-      -DLAPACK_LIBRARIES="C:/Libraries/OpenBLAS-v0.2.15-Win32/lib/libopenblas.dll.a" \
+      -DLAPACK_LIBRARIES="C:/Libraries/OpenBLAS-v0.2.15-Win%BITS%%INT_SUFFIX%/lib/libopenblas.dll.a" \
       -DCMAKE_SHARED_LINKER_FLAGS_RELEASE="/OPT:NOREF /INCREMENTAL:NO" \
       -DUSE_HMAT=OFF \
       -DUSE_BISON=OFF \
-      -DSWIG_EXECUTABLE="C:/Libraries/swigwin-3.0.12/swig.exe" \
       -DUSE_COTIRE=ON -DCOTIRE_MAXIMUM_NUMBER_OF_UNITY_INCLUDES="-j4" \
-      -DMUPARSER_LIBRARY=C:/Libraries/muparser-2.2.5/lib/muparser.lib -DMUPARSER_INCLUDE_DIR=C:/Libraries/muparser-2.2.5/include \
+      -DMUPARSER_LIBRARY=C:/Libraries/muparser/lib/muparser.lib -DMUPARSER_INCLUDE_DIR=C:/Libraries/muparser/include \
       -DTBB_LIBRARY=C:/Libraries/tbb/lib/tbb.lib -DTBB_INCLUDE_DIR=C:/Libraries/tbb/include \
       -DNLOPT_LIBRARY=C:/Libraries/nlopt/lib/nlopt.lib -DNLOPT_INCLUDE_DIR=C:/Libraries/nlopt/include \
       -DLIBXML2_LIBRARIES=C:/Libraries/libxml2/lib/libxml2.lib -DLIBXML2_INCLUDE_DIR=C:/Libraries/libxml2/include \
       -DBUILD_PYTHON=OFF \
       ..
   - cmake --build . --config Release --target install
-  #- set PYTHONPATH=%cd%\install\Lib\site-packages
-  #- copy install\bin\OT.dll install\Lib\site-packages\openturns
-  #- copy C:\Libraries\mingw32_dll\libgcc_s_sjlj-1.dll install\Lib\site-packages\openturns
-  #- copy C:\Libraries\mingw32_dll\libgfortran-3.dll install\Lib\site-packages\openturns
-  #- copy C:\Libraries\mingw32_dll\libquadmath-0.dll install\Lib\site-packages\openturns
-  #- copy C:\Libraries\OpenBLAS-v0.2.15-Win32\bin\libopenblas.dll install\Lib\site-packages\openturns
-  #- copy C:\Libraries\tbb\bin\tbb.dll install\Lib\site-packages\openturns
-  #- ctest -C Release --output-on-failure --timeout 100 -E "cppcheck|Sequence|Entropy|Sklar|Sample_computation|InverseBox"
+  - copy C:\Libraries\mingw%BITS%_dll\libgcc_s_sjlj-1.dll install\bin
+  - copy C:\Libraries\mingw%BITS%_dll\libgfortran-3.dll install\bin
+  - copy C:\Libraries\mingw%BITS%_dll\libquadmath-0.dll install\bin
+  - copy C:\Libraries\OpenBLAS-v0.2.15-Win%BITS%%INT_SUFFIX%\bin\libopenblas.dll install\bin
+  - copy C:\Libraries\tbb\bin\tbb.dll install\bin
   - 7z a -tzip %APPVEYOR_BUILD_FOLDER%\openturns-%OT_VERSION%-%VC%-%CPU_ARCH%.zip install\*
 
 artifacts:
