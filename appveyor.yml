@@ -53,6 +53,7 @@ install:
 
 build_script:
   - git clone https://github.com/openturns/openturns.git
+  - cd openturns
   - git checkout %APPVEYOR_REPO_TAG_NAME%
   - mkdir build && cd build
   - cmake -G"%VS_GEN%" \
