@@ -6,12 +6,12 @@ environment:
     - VS_GEN: Visual Studio 10 2010 Win64
       VC: vc10
       CPU_ARCH: x64
-    - VS_GEN: Visual Studio 14 2015
-      VC: vc14
-      CPU_ARCH: x86
-    - VS_GEN: Visual Studio 14 2015 Win64
-      VC: vc14
-      CPU_ARCH: x64
+    #- VS_GEN: Visual Studio 14 2015
+      #VC: vc14
+      #CPU_ARCH: x86
+    #- VS_GEN: Visual Studio 14 2015 Win64
+      #VC: vc14
+      #CPU_ARCH: x64
 
 install:
   - appveyor-retry appveyor DownloadFile https://downloads.sourceforge.net/openblas/v0.2.15/OpenBLAS-v0.2.15-Win32.zip
